@@ -11,19 +11,24 @@ export function bootOperator(cli: Vorpal) {
     cli
         .command('boot-operator', 'Starts a runtime of the operator.')
         .action(async function (this: Vorpal.CommandInstance) {
-            const walletKeyPrompt: Vorpal.PromptObject = {
-                type: 'password',
-                name: 'walletKey',
-                message: 'Enter the private key of the operator:',
-                mask: '*'
-            };
-            const { walletKey } = await this.prompt(walletKeyPrompt);
+						let password  = process.env.WALLET_KEY || "";
+						
+						if(!password) {
+							const walletKeyPrompt: Vorpal.PromptObject = {
+									type: 'password',
+									name: 'walletKey',
+									message: 'Enter the private key of the operator:',
+									mask: '*'
+							};
+							const { walletKey } = await this.prompt(walletKeyPrompt);
+							
+							if (!walletKey || walletKey.length < 1) {
+									throw new Error("No private key passed in. Please provide a valid private key.")
+							}
+							password = walletKey
+						}
 
-            if (!walletKey || walletKey.length < 1) {
-                throw new Error("No private key passed in. Please provide a valid private key.")
-            }
-
-            const { signer } = getSignerFromPrivateKey(walletKey);
+            const { signer } = getSignerFromPrivateKey(password);
 
             stopFunction = await operatorRuntime(
                 signer,

@@ -90,7 +90,4 @@ setRollupAddress(cli);
 toggleAssertionChecking(cli);
 totalSupply(cli);
 
-cli
-    .delimiter('sentry-node$')
-    .show()
-    .log('\nType "help" to display a list of actions.');
+cli.show().exec(process.argv[2])
